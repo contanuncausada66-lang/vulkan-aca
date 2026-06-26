@@ -6,15 +6,20 @@ ENV NVIDIA_DRIVER_CAPABILITIES=graphics,compute,utility
 ENV VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/nvidia_icd.json
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    git \
+    sudo \
     libegl1 \
     libglvnd0 \
     libglx0 \
     libvulkan1 \
     vulkan-tools \
     libxext6 \
+    ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-COPY nvidia_icd.json /usr/share/vulkan/icd.d/nvidia_icd.json
-COPY 10_nvidia.json /usr/share/glvnd/egl_vendor.d/10_nvidia.json
+RUN curl -fsSL https://code-server.dev/install.sh | sh
 
-CMD ["/bin/bash"]
+EXPOSE 8080
+
+CMD ["code-server", "--bind-addr", "0.0.0.0:8080", "--auth", "none"]

@@ -36,16 +36,27 @@ jobs:
         with:
           context: .
           push: true
-          tags: steamregistry20107.azurecr.io/vulkan-gpu:${{ github.sha }}
+          tags: |
+            steamregistry20107.azurecr.io/vulkan-gpu:${{ github.sha }}
+            steamregistry20107.azurecr.io/vulkan-gpu:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Update Container App
+      - name: Ensure ACR registry configured
+        run: |
+          az containerapp registry set \
+            --name jupyter-gpu \
+            --resource-group rg-container-gpu \
+            --server steamregistry20107.azurecr.io \
+            --username ${{ secrets.ACR_USERNAME }} \
+            --password ${{ secrets.ACR_PASSWORD }}
+
+      - name: Update Container App image
         run: |
           az containerapp update \
             --name jupyter-gpu \
             --resource-group rg-container-gpu \
-            --image steamregistry20107.azurecr.io/vulkan-gpu:${{ github.sha }}
+            --image steamregistry20107.azurecr.io/vulkan-gpu:latest
 
       - name: Wait for rollout
         run: sleep 30
